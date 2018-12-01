@@ -8,8 +8,13 @@ class SequenceLabelEncoder(LabelEncoder):
     def __init__(self):
         super().__init__()
 
-    def fit(self, sequence):
+    def fit(self, sequence, pad_label=None):
         unique_items = set()
+        if pad_label:
+            if not isinstance(pad_label, str):
+                raise ValueError('pad_label should be either str or None')
+            unique_items.add('<PADL>')
+
         for sample in sequence:
             unique_items.update(sample)
 

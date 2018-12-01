@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sk_seqtools',
-    version='0.0.1',
+    version='0.0.2',
     author='Luiz Felix',
     author_email='lzcfelix@gmail.com',
     description='Extends sklearn LabelEncoder to handle sequences of labels',

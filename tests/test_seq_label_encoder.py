@@ -10,7 +10,7 @@ class TestSequentialLabelEncoder(unittest.TestCase):
 
     @staticmethod
     def compare_lists(left_lists, right_lists):
-        """Returns if two lists have the same elements in the same order"""
+        """Returns if two lists of lists have the same elements in the same order"""
         for left, right in zip(left_lists, right_lists):
             match = all(x == y for x, y in zip(left, right))
             if not match:
@@ -56,6 +56,39 @@ class TestSequentialLabelEncoder(unittest.TestCase):
         decoded = self.encode_decode(new_labels)
 
         self.assertTrue(self.compare_lists(new_labels, decoded), "Encode/decode failed")
+
+    def test_encode_with_pad(self):
+        original_labels = [['a', 'b'], ['b', 'b']]
+
+        self.label_encoder.fit(original_labels, pad_label='<PADL>')
+        self.assertListEqual(['<PADL>', 'a', 'b'],
+                             self.label_encoder.classes_.tolist(),
+                             "The encoder should contain all categorical labels and the <PADL> label")
+
+    def test_encoder_without_pad(self):
+        original_labels = [['a', 'b'], ['b']]
+
+        self.label_encoder.fit(original_labels)
+        self.assertListEqual(['a', 'b'],
+                             self.label_encoder.classes_.tolist(),
+                             'The encoder should *not* contain the <PADL> label')
+
+    def test_encode_invalid_pad(self):
+        original_labels = [['a', 'b'], ['b']]
+
+        with self.assertRaises(ValueError):
+            self.label_encoder.fit(original_labels, pad_label=123)
+
+    def test_decode_with_pad(self):
+        original_labels = [['a', 'b', 'b', 'b', 'b', 'a'], ['b', 'a', 'z']]
+        self.label_encoder.fit(original_labels, pad_label='<PADL>')
+
+        decoded_labels = self.encode_decode(original_labels)
+        self.assertTrue(self.compare_lists(decoded_labels, original_labels))
+
+        padded_labels = [['a', 'b', 'b', 'b', 'b', 'a'], ['b', 'a', 'z', '<PADL>', '<PADL>', '<PADL>']]
+        decoded_padded_labels = self.encode_decode(padded_labels)
+        self.assertTrue(padded_labels, decoded_padded_labels)
 
 
 if __name__ == '__main__':
